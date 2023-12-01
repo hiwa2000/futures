@@ -171,9 +171,10 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:animated_background/animated_background.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class RandomUser {
@@ -185,20 +186,24 @@ class RandomUser {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   late Future<RandomUser> _randomUserFuture;
 
   @override
@@ -226,38 +231,52 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Random User'),
+        title: const Text('Random User'),
       ),
-      body: Center(
-        child: FutureBuilder<RandomUser>(
-          future: _randomUserFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(Icons.error, size: 50),
-                  Text('Error loading user'),
-                ],
-              );
-            } else if (snapshot.hasData) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(snapshot.data!.picture),
-                    radius: 50,
-                  ),
-                  SizedBox(height: 20),
-                  Text('${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
-                ],
-              );
-            } else {
-              return Text('No data');
-            }
-          },
+      body: AnimatedBackground(
+        behaviour: RandomParticleBehaviour(
+          options: const ParticleOptions(
+            spawnMaxRadius: 10,
+            spawnMinSpeed: 2.00,
+            particleCount: 50,
+            spawnMaxSpeed: 5,
+            minOpacity: 0.2,
+            spawnOpacity: 0.3,
+            baseColor: Color.fromARGB(255, 39, 170, 98),
+          ),
+        ),
+        vsync: this,
+        child: Center(
+          child: FutureBuilder<RandomUser>(
+            future: _randomUserFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.error, size: 70),
+                    Text('Error loading user'),
+                  ],
+                );
+              } else if (snapshot.hasData) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    CircleAvatar(
+                      backgroundImage: NetworkImage(snapshot.data!.picture),
+                      radius: 50,
+                    ),
+                    const SizedBox(height: 20),
+                    Text('${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
+                  ],
+                );
+              } else {
+                return const Text('No data');
+              }
+            },
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -266,8 +285,20 @@ class _MyHomePageState extends State<MyHomePage> {
             _randomUserFuture = fetchRandomUser();
           });
         },
-        child: Icon(Icons.refresh),
+        child: const Icon(Icons.refresh),
       ),
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
